@@ -1,31 +1,28 @@
-var User = require("../models/User");
+var Sisaweb = require("../models/Sisaweb");
 
 
 
-class UserController{
+class SisawebController{
 
     async login(req, res){
         var { username, password } = req.body;
     
         try {
-            var user = await User.findByUsername(username);
-
-            if(user != undefined){
-                if (user.status && user.status == 0){
+            var resp = await Sisaweb.findUser(username);
+            
+            if(resp != undefined){
+                if (!resp.status){
                     res.status(406);
                     res.json({status: false,message:"Credenciais incorretas!"});
                 }
-                var resultado = await bcrypt.compare(password,user.senha);
+                var user = resp.user;
+                var resultado = password.trim() === user.senha.trim();
 
                 if(resultado){
-
-                    var token = jwt.sign({ id: user.id_users, name: user.nome, email: user.email, role: user.nivel }, secret, { expiresIn: 3600});
-
                     res.status(200);
-                    res.json({name: user.nome, role: user.nivel, id: user.id_users, unidade: user.id_unidade, token: token});
+                    res.json({name: user.nome, nivel: user.nivel, id: user.id_usuario, local: user.id_municipio, login: user.login});
                 }else{
                     res.status(406);
-                    var hash = await bcrypt.hash(password, 10);
                     res.json({status: false,message:"Senha incorreta!"});
                 }
 

@@ -30,9 +30,15 @@ class PedidoController{
         }
       }
     
+      async getPedidosSw(req, res) {
+        var mun = req.params.mun;
+        var locs = await Pedido.getPedidosSw(mun);
+        res.json(locs);
+      }
+
       async getPedidos(req, res) {
-        var filter = req.params.mun;
-        var locs = await Pedido.getPedidos(filter);
+        var filter = req.params.filter;
+        var locs = await Pedido.getPedidos(filter.id_municipio);
         res.json(locs);
       }
       

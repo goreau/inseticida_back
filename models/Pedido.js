@@ -45,8 +45,31 @@ class Pedido{
         }
       }
     
+      async getPedidosSw(mun) {
+        try {
+          var result = [];
+    
+          result = await knex
+            .select(["p.*","m.nome as municipio","d.nome as produto"])
+            .column(knex.raw("CASE when quant_lib is null then '' else u.nome end as resp"))
+            .column(knex.raw("TO_CHAR(p.created_at, 'DD/MM/YYYY') as dt_pedido"))
+            .column(knex.raw("TO_CHAR(p.dt_libera, 'DD/MM/YYYY') as dt_libera"))
+            .column(knex.raw("Case when quant_lib is null then 'Aberto' else 'Atendido' end as status"))
+            .table("pedido as p")
+            .join("municipio as m","m.id_municipio","=","p.id_municipio")
+            .join("produto as d","d.id_produto","=","p.id_produto")
+            .leftJoin("users as u", "u.id_users", "=", "p.id_users")
+            .where("p.id_municipio","=",mun)
+            .orderBy("id_pedido", "desc");
+    
+          return result;
+        } catch (err) {
+          console.log(err);
+          return [];
+        }
+      }
       
-      async getPedidos(filter) {
+      async getPedidos() {
         try {
           var result = [];
     

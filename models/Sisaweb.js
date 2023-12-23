@@ -1,24 +1,26 @@
-var knex = require("../database/connection");
+var knex = require("../database/sisawebDb");
+const errorCode = require("../database/ErrorCode");
 
-class User{
-    async findByUsername(username){
+class Sisaweb{
+    async findUser(username){
         try{
 
-            var result = await knex.select(["id_users","email","login", "id_unidade", "senha","nivel","nome"])
+            var result = await knex.select(["id_usuario","email","login", "id_municipio", "senha","nivel","nome"])
             .where({login: username})
-            .table("users");
+            .table("usuario");
             
             if(result.length > 0){
-                return result[0];
+                return {status: true, user: result[0], err: null};
             }else{
-                return {status: 0, err: 'Não encontrado.'};
+                return {status: false, user: undefined, err: 'Não encontrado.'};
             }
 
         }catch(err){
+            var msg = errorCode.getPgError(err.code);
             console.log(err);
-            return undefined;
+            return { status: false, err: msg, user: undefined };;
         }
     }
 }
 
-module.exports = new User();
+module.exports = new Sisaweb();

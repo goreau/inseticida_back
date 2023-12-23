@@ -42,7 +42,7 @@ router.get("/produto/:id", AdminAuth, ProdutoController.getProduto);
 router.put('/produto', AdminAuth, ProdutoController.updateProduto);
 router.get("/produtos/:filter", AdminAuth, ProdutoController.getProdutos);
 router.delete('/produto/:id', AdminAuth, ProdutoController.deleteProduto);
-router.get('/produtoscombo', AdminAuth, ProdutoController.getProdutosCombo);
+router.get('/produtoscombo', ProdutoController.getProdutosCombo);
 
 router.post('/lote', AdminAuth, LoteController.createLote);
 router.get("/lote/:id", AdminAuth, LoteController.getLote);
@@ -67,7 +67,8 @@ router.delete('/movimento/:id', AdminAuth, MovimentoController.deleteMovimento);
 router.post('/pedido', AdminAuth, PedidoController.createPedido);
 router.get("/pedido/:id", AdminAuth, PedidoController.getPedido);
 router.put('/pedido', AdminAuth, PedidoController.updatePedido);
-router.get("/pedidos/:filter", AdminAuth, PedidoController.getPedidos);
+router.get("/pedidos", AdminAuth, PedidoController.getPedidos);
 router.delete('/pedido/:id', AdminAuth, PedidoController.deletePedido);
+router.get("/pedidos/:mun", PedidoController.getPedidosSw);
 
 module.exports = router;
