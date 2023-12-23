@@ -44,7 +44,6 @@ class AuxiliarController{
       }
 
     async getUnidadesCombo(req, res){
-        //  var id = req.params.id;
           var users = await Unidade.getUnidadesCombo();
           if(users == undefined){
               res.status(404);
@@ -54,6 +53,34 @@ class AuxiliarController{
               res.json(users);
           }
       }
+
+      async getMovCombo(req, res){
+        var tipo = req.params.tipo;
+        var id_prop = parseInt(req.params.id_prop);
+        var users = null;
+        switch (tipo) {
+          case '1':
+            users = await Unidade.getMovUnidCombo(1);
+            break;
+          case '5':
+            users = await Unidade.getMovUnidCombo(2);
+            break;
+          case '6':
+            users = [{id: 999, nome: '999.Ministério da Saúde'}]
+            break;
+          default:
+            users = await Unidade.getMunicipiosCombo(id_prop);
+            break;
+        }
+        
+        if(users == undefined){
+            res.status(404);
+            res.json({});
+        }else{
+            res.status(200)
+            res.json(users);
+        }
+    }
 
       /*========================*/
 

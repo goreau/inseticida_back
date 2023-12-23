@@ -76,17 +76,58 @@ class Unidade{
           return { status: false, err: err };
         }
       }
-    
+      
     async getUnidadesCombo(){
         try{
             var result = await knex.select(["id_unidade","nome"])
-            .table("unidade as u")
-            .where({deleted: 0});
+            .table("unidade as u");
             return result;
         }catch(err){
             console.log(err);
             return [];
         }
+    }
+
+    async getMovUnidCombo(tipo){
+      try{
+          var result = await knex.select(["id_unidade as id"])
+          .column(knex.raw("CONCAT(codigo,'.', nome) as nome"))
+          .table("unidade as u")
+          .orderBy("ordem")
+          .modify(function (queryBuilder) {
+            if (tipo == 1) {
+              queryBuilder.where('tipo','<=',tipo);
+            }
+          });
+          return result;
+      }catch(err){
+          console.log(err);
+          return [];
+      }
+  }
+
+    async getMunicipiosCombo(id_prop){
+      try{
+        var arrUnid = await knex.select(["id_unidade"])
+        .table("users")
+        .where("id_users","=",id_prop);
+
+        var unidade = arrUnid[0].id_unidade;
+
+        var result = await knex.select(["id_municipio as id","m.nome"])
+        .table("municipio as m")
+        .join("unidade as u","u.id_regional","=","m.id_regional")
+        .join("users as l","l.id_unidade","=","u.id_unidade")
+        .modify(function (queryBuilder) {
+          if (unidade > 5) {
+            queryBuilder.where('l.id_users','=',id_prop);
+          }
+        });
+        return result;
+    }catch(err){
+        console.log(err);
+        return [];
+    }
     }
 
 }

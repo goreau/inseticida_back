@@ -82,7 +82,6 @@ class Produto{
         try{
             var result = await knex.select(["id_produto","nome"])
             .table("produto as u")
-            .where({deleted: 0});
             return result;
         }catch(err){
             console.log(err);

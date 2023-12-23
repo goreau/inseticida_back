@@ -7,9 +7,16 @@ const UserController = require("../controllers/UserController");
 const ProdutoController = require("../controllers/ProdutoController");
 const LoteController = require("../controllers/LoteController");
 const RevalidaController = require("../controllers/RevalidaController");
+const MovimentoController = require("../controllers/MovimentoController");
+const PedidoController = require("../controllers/PedidoController");
 const AuxiliarController = require("../controllers/AuxiliarController");
 
+const SisawebController = require("../controllers/SisawebController");
+
 var AdminAuth = require("../middleware/AdminAuth");
+
+
+router.post("/loginsw", SisawebController.login);
 
 
 router.get('/', HomeController.index);
@@ -28,6 +35,7 @@ router.put('/unidade', AdminAuth, AuxiliarController.updateUnidade);
 router.get("/unidades/:filter", AdminAuth, AuxiliarController.getUnidades);
 router.delete('/unidade/:id', AdminAuth, AuxiliarController.deleteUnidade);
 router.get('/unidadescombo', AdminAuth, AuxiliarController.getUnidadesCombo);
+router.get('/movcombo/:tipo/:id_prop', AdminAuth, AuxiliarController.getMovCombo);
 
 router.post('/produto', AdminAuth, ProdutoController.createProduto);
 router.get("/produto/:id", AdminAuth, ProdutoController.getProduto);
@@ -49,5 +57,17 @@ router.put('/revalida', AdminAuth, RevalidaController.updateRevalida);
 router.get("/revalidas/:filter", AdminAuth, RevalidaController.getRevalidas);
 router.delete('/revalida/:id', AdminAuth, RevalidaController.deleteRevalida);
 router.get('/revalidascombo', AdminAuth, RevalidaController.getRevalidasCombo);
+
+router.post('/movimento', AdminAuth, MovimentoController.createMovimento);
+router.get("/movimento/:id", AdminAuth, MovimentoController.getMovimento);
+router.put('/movimento', AdminAuth, MovimentoController.updateMovimento);
+router.get("/movimentos/:filter", AdminAuth, MovimentoController.getMovimentos);
+router.delete('/movimento/:id', AdminAuth, MovimentoController.deleteMovimento);
+
+router.post('/pedido', AdminAuth, PedidoController.createPedido);
+router.get("/pedido/:id", AdminAuth, PedidoController.getPedido);
+router.put('/pedido', AdminAuth, PedidoController.updatePedido);
+router.get("/pedidos/:filter", AdminAuth, PedidoController.getPedidos);
+router.delete('/pedido/:id', AdminAuth, PedidoController.deletePedido);
 
 module.exports = router;

@@ -82,9 +82,10 @@ class Lote{
     
     async getLotesCombo(){
         try{
-            var result = await knex.select(["id_lote","nome"])
-            .table("lote as u")
-            .where({deleted: 0});
+            var result = await knex.select(["id_lote"])
+            .column(knex.raw("CONCAT(p.nome,' - ', l.lote) as lote"))
+            .table("lote as l")
+            .join("produto as p", "p.id_produto", "=", "l.id_produto");
             return result;
         }catch(err){
             console.log(err);

@@ -168,7 +168,7 @@ class UserController{
     
         try {
             var user = await User.findByUsername(username);
-
+console.log(user);
             if(user != undefined){
                 if (user.status && user.status == 0){
                     res.status(406);
@@ -181,7 +181,7 @@ class UserController{
                     var token = jwt.sign({ id: user.id_users, name: user.nome, email: user.email, role: user.nivel }, secret, { expiresIn: 3600});
 
                     res.status(200);
-                    res.json({name: user.nome, role: user.nivel, id: user.id_users, token: token});
+                    res.json({name: user.nome, role: user.nivel, id: user.id_users, unidade: user.id_unidade, token: token});
                 }else{
                     res.status(406);
                     var hash = await bcrypt.hash(password, 10);
