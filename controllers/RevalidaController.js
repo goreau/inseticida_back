@@ -6,8 +6,14 @@ class RevalidaController{
         try {
           var dados = req.body;
           var result = await Revalida.create(dados);
-          res.status(200);
-          res.json({ msg: "Revalidação cadastrada!" });
+          if(result.status){
+            res.status(200);
+            res.json({ msg: "Revalidação cadastrada!"});
+          }
+          else 
+          {
+            res.status(400).json({msg: result.err});
+          }
         } catch (error) {
           res.status(400).send(error);
         }
@@ -23,8 +29,14 @@ class RevalidaController{
         try {
           var dados = req.body;
           var result = await Revalida.update(dados);
-          res.status(200);
-          res.json({ msg: "Revalidação alterada!" });
+          if(result.status){
+            res.status(200);
+            res.json({ msg: "Revalidação alterada!"});
+          }
+          else 
+          {
+            res.status(400).json({msg: result.err});
+          }
         } catch (error) {
           res.status(400).send(error);
         }

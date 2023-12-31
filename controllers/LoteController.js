@@ -6,8 +6,14 @@ class LoteController{
         try {
           var dados = req.body;
           var result = await Lote.create(dados);
-          res.status(200);
-          res.json({ msg: "Lote cadastrado!" });
+          if(result.status){
+            res.status(200);
+            res.json({ msg: "Lote cadastrado!"});
+          }
+          else 
+          {
+            res.status(400).json({msg: result.err});
+          }
         } catch (error) {
           res.status(400).send(error);
         }
@@ -23,8 +29,14 @@ class LoteController{
         try {
           var dados = req.body;
           var result = await Lote.update(dados);
-          res.status(200);
-          res.json({ msg: "Lote alterado!" });
+          if(result.status){
+            res.status(200);
+            res.json({ msg: "Lote alterado!"});
+          }
+          else 
+          {
+            res.status(400).json({msg: result.err});
+          }
         } catch (error) {
           res.status(400).send(error);
         }

@@ -6,8 +6,14 @@ class PedidoController{
         try {
           var dados = req.body;
           var result = await Pedido.create(dados);
-          res.status(200);
-          res.json({ msg: "Pedido cadastrado!" });
+          if(result.status){
+            res.status(200);
+            res.json({ msg: "Pedido cadastrado!"});
+          }
+          else 
+          {
+            res.status(400).json({msg: result.err});
+          }
         } catch (error) {
           res.status(400).send(error);
         }
@@ -23,8 +29,14 @@ class PedidoController{
         try {
           var dados = req.body;
           var result = await Pedido.update(dados);
-          res.status(200);
-          res.json({ msg: "Pedido alterado!" });
+          if(result.status){
+            res.status(200);
+            res.json({ msg: "Pedido alterado!"});
+          }
+          else 
+          {
+            res.status(400).json({msg: result.err});
+          }
         } catch (error) {
           res.status(400).send(error);
         }

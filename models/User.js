@@ -1,6 +1,7 @@
 var knex = require("../database/connection");
 var bcrypt = require("bcrypt");
 const PasswordToken = require("./PasswordToken");
+const errorCode = require("../database/ErrorCode");
 
 class User{
 
@@ -59,30 +60,69 @@ class User{
     async findByUsername(username){
         try{
 
-            var result = await knex.select(["id_users","email","login", "id_unidade", "senha","nivel","nome"])
+            var result = await knex.select(["id_users","email","login", "id_unidade", "senha","nivel","nome","email_verified_at as check"])
             .where({login: username})
             .table("users");
             
             if(result.length > 0){
-                return result[0];
+                return { status: true, err: null, user: result[0]};
             }else{
-                return {status: 0, err: 'Não encontrado.'};
+                return {status: false, err: 'Não encontrado.', user: null};
             }
 
         }catch(err){
-            console.log(err);
-            return undefined;
+            var msg = errorCode.getPgError(err.code);
+            return {status: false, err: msg, user: null};
         }
     }
 
-    async new(name, username, password, id_unidade, email, role, id_prop){
+    async new(nome, login, senha, id_unidade, email, nivel, id_prop, active){
         try{
-            var hash = await bcrypt.hash(password, 10);
-            await knex.insert({name, username, password: hash, id_unidade, email, role, id_prop}).table("usuario");
+            var hash = await bcrypt.hash(senha, 10);
+
+            var currentdate = new Date(); 
+            var datetime = currentdate.getFullYear() + "-" + (currentdate.getMonth()+1)  + "-" + currentdate.getDate() + " "
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+          
+            var created_at = datetime;
+            var updated_at = datetime;
+
+            const result = await knex.insert({nome, login, senha: hash, id_unidade, email, nivel, id_prop, active, created_at, updated_at}).table("users");
+            
+            return { status: true, err: null};
         }catch(err){
-            console.log(err);
+            var msg = errorCode.getPgError(err.code);
+            return {status: false, err: msg};
         }
     } 
+
+    async firstAccess(user){
+        try {
+            var hash = await bcrypt.hash(user.senha, 10);
+            
+            var currentdate = new Date(); 
+            var datetime = currentdate.getFullYear() + "-" + (currentdate.getMonth()+1)  + "-" + currentdate.getDate() + " "
+                    + currentdate.getHours() + ":"  
+                    + currentdate.getMinutes() + ":" 
+                    + currentdate.getSeconds();
+
+            user.email_verified_at = datetime;
+            user.senha = hash;
+
+            var id = user.id_users;
+
+            delete user.id_users;
+
+            var result = await knex('users').where('id_users', id).update(user);
+            return { status: true, err: null};   
+
+        } catch (error) {
+            var msg = errorCode.getPgError(error.code);
+            return {status: false, err: msg};
+        }
+    }
 
     async update(user){
         var fields = {};
@@ -91,8 +131,8 @@ class User{
             for (var property in user) {
                 if (!user.hasOwnProperty(property)) continue;
                 if (user[property] == '') continue;
-                if (property == 'id_usuario'){
-                    id = user.id_usuario;
+                if (property == 'id_users'){
+                    id = user.id_users;
                     continue;
                 }
                 if (property == 'old_password'){
@@ -107,12 +147,22 @@ class User{
                     user[property] = hash;
                 }
                 fields[property] = user[property];
+
+                var currentdate = new Date(); 
+                var datetime = currentdate.getFullYear() + "-" + (currentdate.getMonth()+1)  + "-" + currentdate.getDate() + " "
+                    + currentdate.getHours() + ":"  
+                    + currentdate.getMinutes() + ":" 
+                    + currentdate.getSeconds();
+            
+                var updated_at = datetime;
+                fields['updated_at'] = updated_at;
             }
             
-            await knex('usuario').where('id_usuario', id).update(fields);
-               
+            await knex('users').where('id_users', id).update(fields);
+            return { status: true, err: null};   
         }catch(err){
-            console.log(err);
+            var msg = errorCode.getPgError(err.code);
+            return {status: false, err: msg};
         }
     } 
     

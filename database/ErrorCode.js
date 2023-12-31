@@ -289,6 +289,12 @@ class ErrorCode {
       case '22P02':
           err = 'Valor inválido para o campo';
           break;
+      case '23502':
+          err = 'Valor obrigatório não informado';
+          break;
+      case '23505':
+          err = 'Login já existe!';
+          break;
       case '42883':
           err = 'Função não encontrada.';
           break;

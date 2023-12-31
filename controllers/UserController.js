@@ -50,36 +50,63 @@ class UserController{
     }
 
     async create(req, res){
-        var {name, username, password, id_unidade, email, role, id_prop } = req.body;
+        var {nome, login, senha, id_unidade, email, nivel, id_prop, active } = req.body;
 
-        if(username == undefined){
+        if(login == undefined){
             res.status(400);
             res.json({err: "O login é inválido!"})
             return;
         }
 
-        var userExists = await User.findByUsername(username);
+        var userExists = await User.findByUsername(login);
 
-        if(userExists.id_usuario){
+        if(userExists.user.id_users){
             res.status(406);
-            res.json({err: "Esse nome de usuário já está cadastrado!"})
+            res.json({msg: "Esse nome de usuário já está cadastrado!"})
             return;
         }
 
         
-        await User.new(name, username, password, id_unidade, email, role, id_prop);
+        var result = await User.new(nome, login, senha, id_unidade, email, nivel, id_prop, active);
         
-        res.status(200);
-        res.send("Tudo OK!");
+        if(result.status){
+            res.status(200);
+            res.json({ msg: "Usuário cadastrado!"});
+          }
+          else 
+          {
+            console.log(result.err);
+            res.status(400).json({msg: result.err});
+          }
+    }
+
+    async firstAccess(req, res){
+        var { login, senha } = req.body;
+
+        var resp = await User.findByUsername(login);
+
+        var id_users = resp.user.id_users;
+
+        var result = await User.firstAccess({id_users,login,senha});
+        
+        if(result.status){
+            res.status(200);
+            res.json({ msg: "Usuário alterado!"});
+        }
+        else 
+        {
+            res.status(400).json({msg: result.err});
+        }
+
     }
 
     async update(req, res){
         var user = req.body;
 
-        if (user.old_password){
+        if (user.old_senha){
             let oldUser = await User.findById(user.id_usuario);
 
-            var resultado = await bcrypt.compare(user.old_password, oldUser.password);
+            var resultado = await bcrypt.compare(user.old_senha, oldUser.senha);
 
             if (!resultado){
                 res.status(400);
@@ -91,11 +118,18 @@ class UserController{
             res.json({status: false,message:"A senha atual não foi informada!"});
             return;
         }
-        user.password = user.new_password;
+        user.senha = user.new_senha;
 
         var ret = await User.update(user);
         
-        res.status(200).send({data: "Tudo OK!"});
+        if(ret.status){
+            res.status(200);
+            res.json({ msg: "Usuário alterado!"});
+        }
+        else 
+        {
+            res.status(400).json({msg: result.err});
+        }
     }
 
     async edit(req, res){
@@ -107,8 +141,8 @@ class UserController{
     }
 
     async editOff(req, res){
-        var {id, name, role, email} = req.body;
-        var result = await User.update(id,email,name,role);
+        var {id, nome, nivel, email} = req.body;
+        var result = await User.update(id,email,nome,nivel);
         if(result != undefined){
             if(result.status){
                 res.status(200);
@@ -151,10 +185,10 @@ class UserController{
 
     async changePassword(req, res){
         var token = req.body.token;
-        var password = req.body.password;
+        var senha = req.body.senha;
         var isTokenValid = await PasswordToken.validate(token);
         if(isTokenValid.status){
-            await User.changePassword(password,isTokenValid.token.user_id,isTokenValid.token.token);
+            await User.changePassword(senha,isTokenValid.token.user_id,isTokenValid.token.token);
             res.status(200);
             res.send("Senha alterada");
         }else{
@@ -164,32 +198,33 @@ class UserController{
     }
 
     async login(req, res){
-        var { username, password } = req.body;
+        var { login, senha } = req.body;
     
         try {
-            var user = await User.findByUsername(username);
-console.log(user);
-            if(user != undefined){
-                if (user.status && user.status == 0){
-                    res.status(406);
-                    res.json({status: false,message:"Credenciais incorretas!"});
-                }
-                var resultado = await bcrypt.compare(password,user.senha);
+            var resp = await User.findByUsername(login);
+
+            if (!resp.status){
+                res.status(406);
+                res.json({status: false,message:"Credenciais incorretas!"});
+            } else if (!resp.user.check){
+                res.status(406);
+                res.json({status: false,message:"Alterar senha"});
+            } else {
+                var user = resp.user;
+                console.log('aqui nao')
+                    
+                var resultado = await bcrypt.compare(senha,user.senha);
 
                 if(resultado){
 
-                    var token = jwt.sign({ id: user.id_users, name: user.nome, email: user.email, role: user.nivel }, secret, { expiresIn: 3600});
+                    var token = jwt.sign({ id: user.id_users, nome: user.nome, email: user.email, nivel: user.nivel }, secret, { expiresIn: 3600});
 
                     res.status(200);
-                    res.json({name: user.nome, role: user.nivel, id: user.id_users, unidade: user.id_unidade, token: token});
+                    res.json({nome: user.nome, nivel: user.nivel, id: user.id_users, unidade: user.id_unidade, token: token});
                 }else{
                     res.status(406);
-                    var hash = await bcrypt.hash(password, 10);
                     res.json({status: false,message:"Senha incorreta!"});
                 }
-
-            }else{
-                res.json({status: false, message:"Erro de comunicação com o banco de dados!"});
             }
         } catch (error) {
             console.log(error);

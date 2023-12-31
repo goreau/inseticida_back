@@ -6,8 +6,14 @@ class ProdutoController{
         try {
           var dados = req.body;
           var result = await Produto.create(dados);
-          res.status(200);
-          res.json({ msg: "Produto cadastrado!" });
+          if(result.status){
+            res.status(200);
+            res.json({ msg: "Produto cadastrado!"});
+          }
+          else 
+          {
+            res.status(400).json({msg: result.err});
+          }
         } catch (error) {
           res.status(400).send(error);
         }
@@ -23,8 +29,14 @@ class ProdutoController{
         try {
           var dados = req.body;
           var result = await Produto.update(dados);
-          res.status(200);
-          res.json({ msg: "Produto alterado!" });
+          if(result.status){
+            res.status(200);
+            res.json({ msg: "Produto alterado!"});
+          }
+          else 
+          {
+            res.status(400).json({msg: result.err});
+          }
         } catch (error) {
           res.status(400).send(error);
         }

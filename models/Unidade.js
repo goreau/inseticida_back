@@ -79,8 +79,10 @@ class Unidade{
       
     async getUnidadesCombo(){
         try{
-            var result = await knex.select(["id_unidade","nome"])
-            .table("unidade as u");
+            var result = await knex.select(["id_unidade"])
+            .column(knex.raw("CONCAT(codigo,'.', nome) as nome"))
+            .table("unidade as u")
+            .orderBy("ordem");
             return result;
         }catch(err){
             console.log(err);

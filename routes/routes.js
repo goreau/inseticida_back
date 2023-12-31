@@ -9,6 +9,8 @@ const LoteController = require("../controllers/LoteController");
 const RevalidaController = require("../controllers/RevalidaController");
 const MovimentoController = require("../controllers/MovimentoController");
 const PedidoController = require("../controllers/PedidoController");
+const AddressController = require("../controllers/AddressController");
+const RelatorioController = require("../controllers/RelatorioController");
 const AuxiliarController = require("../controllers/AuxiliarController");
 
 const SisawebController = require("../controllers/SisawebController");
@@ -28,6 +30,7 @@ router.post("/login", UserController.login);
 router.get("/user/:id", AdminAuth, UserController.getUser);
 router.get("/users", AdminAuth, UserController.getUsers);
 router.delete("/user/:id", AdminAuth, UserController.remove);
+router.put('/firstaccess', UserController.firstAccess);
 
 router.post('/unidade', AdminAuth, AuxiliarController.createUnidade);
 router.get("/unidade/:id", AdminAuth, AuxiliarController.getUnidade);
@@ -58,6 +61,14 @@ router.get("/revalidas/:filter", AdminAuth, RevalidaController.getRevalidas);
 router.delete('/revalida/:id', AdminAuth, RevalidaController.deleteRevalida);
 router.get('/revalidascombo', AdminAuth, RevalidaController.getRevalidasCombo);
 
+router.post('/address', AdminAuth, AddressController.createAddress);
+router.get("/address/:id", AdminAuth, AddressController.getAddress);
+router.put('/address', AdminAuth, AddressController.updateAddress);
+router.get("/addresss/:filter", AdminAuth, AddressController.getAddresss);
+router.get("/addressrecibo/:unid", AdminAuth, AddressController.getAddressRecibo);
+router.delete('/address/:id', AdminAuth, AddressController.deleteAddress);
+
+
 router.post('/movimento', AdminAuth, MovimentoController.createMovimento);
 router.get("/movimento/:id", AdminAuth, MovimentoController.getMovimento);
 router.put('/movimento', AdminAuth, MovimentoController.updateMovimento);
@@ -70,5 +81,8 @@ router.put('/pedido', AdminAuth, PedidoController.updatePedido);
 router.get("/pedidos", AdminAuth, PedidoController.getPedidos);
 router.delete('/pedido/:id', AdminAuth, PedidoController.deletePedido);
 router.get("/pedidos/:mun", PedidoController.getPedidosSw);
+
+router.post("/relat/:id", AdminAuth, RelatorioController.getRelat);
+router.post("/export/:id", AdminAuth, RelatorioController.getExport);
 
 module.exports = router;

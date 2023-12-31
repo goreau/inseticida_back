@@ -1,20 +1,31 @@
 var knex = require("../database/connection");
+const errorCode = require("../database/ErrorCode");
 
 class Revalida{
     //id_revalida, id_lote, dt_validade, id_users, created_at, updated_at
     async create(dados) {
         try {
           var { id_lote, dt_validade, id_users } = dados;
+
+          var currentdate = new Date(); 
+            var datetime = currentdate.getFullYear() + "-" + (currentdate.getMonth()+1)  + "-" + currentdate.getDate() + " "
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+          
+            var created_at = datetime;
+            var updated_at = datetime;
     
           const result = await knex
             .insert({
-                id_lote, dt_validade, id_users
+                id_lote, dt_validade, created_at, updated_at, id_users
             })
             .table("revalida");
     
-          return result;
+          return { status: true, err: null};
         } catch (err) {
-          console.log(err);
+          var msg = errorCode.getPgError(err.code);
+          return {status: false, err: msg};
         }
       }
     
@@ -23,14 +34,24 @@ class Revalida{
           var {
             id_revalida, id_lote, dt_validade, id_users
           } = dados;
+
+          var currentdate = new Date(); 
+            var datetime = currentdate.getFullYear() + "-" + (currentdate.getMonth()+1)  + "-" + currentdate.getDate() + " "
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+          
+            var updated_at = datetime;
     
           await knex("revalida")
             .where("id_revalida", id_revalida)
             .update({
-                id_lote, dt_validade, id_users
+                id_lote, dt_validade, updated_at, id_users
             });
+          return { status: true, err: null};
         } catch (err) {
-          console.log(err);
+          var msg = errorCode.getPgError(err.code);
+          return {status: false, err: msg};
         }
       }
     

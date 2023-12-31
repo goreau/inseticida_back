@@ -1,4 +1,5 @@
 var knex = require("../database/connection");
+const errorCode = require("../database/ErrorCode");
 
 class Pedido{
     //id_pedido, id_programa, id_produto, justifica, quant_sol, quant_lib, id_users, id_sisaweb, id_municipio, 
@@ -23,9 +24,10 @@ class Pedido{
             })
             .table("pedido");
     
-          return result;
+          return { status: true, err: null};
         } catch (err) {
-          console.log(err);
+            var msg = errorCode.getPgError(err.code);
+            return {status: false, err: msg};
         }
       }
     
@@ -34,14 +36,25 @@ class Pedido{
           var {
             id_pedido, id_users, quant_lib, dt_libera
           } = dados;
+
+          var currentdate = new Date(); 
+          var datetime = currentdate.getFullYear() + "-" + (currentdate.getMonth()+1)  + "-" + currentdate.getDate() + " "
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+          
+          var updated_at = datetime;
     
           await knex("pedido")
             .where("id_pedido", id_pedido)
             .update({
-                id_users, quant_lib, dt_libera
+                id_users, quant_lib, dt_libera, updated_at
             });
+
+          return { status: true, err: null};
         } catch (err) {
-          console.log(err);
+            var msg = errorCode.getPgError(err.code);
+            return {status: false, err: msg};
         }
       }
     

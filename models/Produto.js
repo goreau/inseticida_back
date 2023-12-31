@@ -1,20 +1,31 @@
 var knex = require("../database/connection");
+const errorCode = require("../database/ErrorCode");
 
 class Produto{
     //id_produto, nome, codigo, unidade, created_at, updated_at
     async create(dados) {
         try {
           var { nome, codigo, unidade } = dados;
+
+          var currentdate = new Date(); 
+            var datetime = currentdate.getFullYear() + "-" + (currentdate.getMonth()+1)  + "-" + currentdate.getDate() + " "
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+          
+            var created_at = datetime;
+            var updated_at = datetime;
     
           const result = await knex
             .insert({
-                nome, codigo, unidade
+                nome, codigo, unidade, created_at, updated_at
             })
             .table("produto");
     
-          return result;
+            return { status: true, err: null};
         } catch (err) {
-          console.log(err);
+            var msg = errorCode.getPgError(err.code);
+            return {status: false, err: msg};
         }
       }
     
@@ -23,14 +34,25 @@ class Produto{
           var {
             id_produto, nome, codigo, unidade
           } = dados;
+
+          var currentdate = new Date(); 
+            var datetime = currentdate.getFullYear() + "-" + (currentdate.getMonth()+1)  + "-" + currentdate.getDate() + " "
+                + currentdate.getHours() + ":"  
+                + currentdate.getMinutes() + ":" 
+                + currentdate.getSeconds();
+          
+            var updated_at = datetime;
     
           await knex("produto")
             .where("id_produto", id_produto)
             .update({
-                nome, codigo, unidade
+                nome, codigo, unidade, updated_at
             });
+
+            return { status: true, err: null};
         } catch (err) {
-          console.log(err);
+            var msg = errorCode.getPgError(err.code);
+            return {status: false, err: msg};
         }
       }
     
